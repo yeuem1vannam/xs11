@@ -7,15 +7,12 @@ gem 'coffee-rails', '~> 4.1.0'
 gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 2.0'
-group :development, :test do
-  gem 'byebug'
-  gem 'web-console', '~> 2.0'
-  gem 'spring'
-end
 gem 'bootstrap-sass'
 gem 'haml-rails'
 gem 'mysql2'
 gem 'simple_form'
+gem "mechanize"
+gem "parallel"
 group :development do
   gem 'better_errors'
   gem 'html2haml'
@@ -25,4 +22,5 @@ end
 group :development, :test do
   gem 'pry-rails'
   gem 'pry-rescue'
+  gem 'byebug'
 end

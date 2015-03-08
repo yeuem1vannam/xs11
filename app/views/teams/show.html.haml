@@ -1,0 +1,12 @@
+%p#notice= notice
+
+%p
+  %b Login:
+  = @team.login
+%p
+  %b Uid:
+  = @team.uid
+
+= link_to 'Edit', edit_team_path(@team)
+\|
+= link_to 'Back', teams_path
