@@ -78,6 +78,7 @@ pickle-email-*.html
 .env
 .powenv
 *.log
+<<<<<<< HEAD
 /.c9
 /.c9/*
 .c9
@@ -85,3 +86,7 @@ pickle-email-*.html
 .ruby-*
 .versions.conf
 /db/schema.rb
+=======
+.c9/*
+/.c9
+>>>>>>> #1

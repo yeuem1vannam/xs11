@@ -1,5 +1,6 @@
 class Team < ActiveRecord::Base
   has_many :players, dependent: :destroy
+<<<<<<< HEAD
   scope :registered, -> { where(registered: true) }
   scope :not_registered, -> { where.not(registered: true) }
   scope :valuable, -> { registered.where("member_count >= 4") }
@@ -30,6 +31,9 @@ class Team < ActiveRecord::Base
     @team_form
   end
 
+=======
+  scope :valuable, -> { where("member_count >= 4") }
+>>>>>>> #1
   class << self
     def regist_new(prefix)
       # do_create_team(prefix, xteam)

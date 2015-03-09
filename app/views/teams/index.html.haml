@@ -24,7 +24,11 @@
     %tbody
       - @teams.each do |team|
         %tr
+<<<<<<< HEAD
           %td= link_to team.login_name, team, class: "label label-success"
+=======
+          %td= team.login_name
+>>>>>>> #1
           %td= link_to team.uid, "http://play.s11.sgame.vn/club/#{team.uid}#playerinfo", target: :_blank, class: "label label-info"
           %td= team.team_uid
           %td= team.league_uid

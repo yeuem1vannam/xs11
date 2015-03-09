@@ -27,7 +27,8 @@ class S11
   when 4
     # Real
     result[:target] = 211
-    result[:main] = [211140211,211140181,211140141]
+    # Ronaldo 21 / Isco 18 / Illara 14 / James Rodriges 16
+    result[:main] = [211140161,211140181,211140141]
     result[:league] = 2
     pre = true
   when 5
@@ -138,12 +139,6 @@ class S11
     adata[-1] = ""
     jdata = JSON.parse(adata)
     selected = leagued = []
-    # selected = jdata["players"].select do |j|
-    #   j["playerInventory"]["playerProfile"]["mteamNo"] == TARGET
-    # end.map{ |s| s["playerInventory"]["playerProfile"]["plrName"] }
-    # leagued = jdata["players"].select do |j|
-    #   j["playerInventory"]["playerProfile"]["mleagNo"] == LEAGUE
-    # end.map{ |s| s["playerInventory"]["playerProfile"]["plrName"] }
     ActiveRecord::Base.transaction do
       jdata["players"].each do |j|
         if j["playerInventory"]["playerProfile"]["mteamNo"] == TARGET
@@ -169,6 +164,8 @@ class S11
       league_count: @team.players.where(league_uid: LEAGUE).count,
       team_uid: TARGET
     )
+    selected.uniq!
+    leagued.uniq!
     puts "#{@username}: #{selected.size} / #{jdata["players"].size}"
     @memo.info("#{@username}: #{selected.size} / #{jdata["players"].size}")
     if (T_NO == 20 && selected.size >= 4) || (selected.size >= 9)
@@ -256,13 +253,3 @@ class S11
     end
   end
 end
-# a, b, c = ARGV[0], ARGV[1], ARGV[2]
-# puts [a, b, c].inspect
-# ("aa".."zz").each do |char|
-#   begin
-#     x = a.dup.insert(-3, char)
-#     S11.new(x, b, c).dang_ky_team()
-#   rescue => e
-#     next
-#   end
-# end
