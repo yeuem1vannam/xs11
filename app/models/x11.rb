@@ -26,7 +26,7 @@ class X11
     xteam = Team.unscoped.find_by(login_name: uid)
     if xteam
       @team = xteam
-      @team_uid = @team.team_uid
+      @team_uid = @team.team_uid || tuid
     elsif uid && tuid
       @team = Team.unscoped.where(login_name: uid).first_or_create
       @team_uid = tuid
@@ -56,8 +56,8 @@ class X11
     end
   end
 
-  def login
-    if logged_in?
+  def login(force: false)
+    if logged_in? && !force
       puts "Logged in. Load from cookie"
       return true
     else
@@ -71,6 +71,9 @@ class X11
       if login_page["err"] == 0
         puts login_page["msg"]
         @agent.get("http://s11.sgame.vn/play")
+        @agent.get("http://s11.sgame.vn/gmc/main")
+        File.delete(agent_cookie) if logged_in?
+        sleep 1
         @agent.cookie_jar.save_as(agent_cookie)
         return true
       else
@@ -97,7 +100,7 @@ class X11
         teamname = nil
       end
     end
-    teamint = "SRW"
+    teamint = "XXX"
     params = {
       json: '{"teamName":"%s","teamInitials":"%s","coachName":"%s","motherTeam":%s,"players":%s,"natNo":0,"squadName":"XXX"}' % [teamname, teamint, teamname, target[:team_uid], target[:main].inspect],
       path: "PC"
@@ -108,21 +111,30 @@ class X11
       puts z["msg"]
       return z["code"] == "SUCCESS"
     end
+  rescue => e
+    Rails.logger.error(e)
+    return false
   end
 
   def buy_player
     succ = []
     err = []
+    puts @team_uid
     thread_no = target[:pre] ? 20 : 200
     Parallel.each((1..thread_no).to_a, in_threads: thread_no) do
       begin
         b = @agent.post("http://play.s11.sgame.vn/shop/buy", buy_params, {"Referer" => "http://play.s11.sgame.vn/gmc/main"})
         b = JSON.parse(b.body)
-        profile = b["result"]["openItemMap"]["appliedList"].first["playerInventory"]["playerProfile"]
-        if profile["mteamNo"] == target[:team_uid]
-          succ.push(profile["plrName"])
+        if b["result"]["code"] == "SUCCESS"
+          profile = b["result"]["openItemMap"]["appliedList"].first["playerInventory"]["playerProfile"]
+          puts profile["mteamNo"]
+          puts @team_uid
+          if profile["mteamNo"] == target[:team_uid]
+            succ.push(profile["plrName"])
+          end
         end
       rescue => e
+        Rails.logger.error(e)
         err.push(e)
       end
     end

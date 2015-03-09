@@ -13,7 +13,7 @@ class Team < ActiveRecord::Base
 
   class << self
     def regist_new
-      prefixs = {musf: 109, rmafw: 211, katafw: 204, juvfw: 411}
+      prefixs = {mumu: 109, rmaxf: 211, katazx: 204, juvwo: 411}
       # do_create_team(prefix, xteam)
       ("ca".."zz").each do |char|
         puts char
@@ -33,8 +33,20 @@ class Team < ActiveRecord::Base
     def update_team_lineup
       Team.where(member_count: nil, league_count: nil).find_each do |t|
         begin
-          x = X11.new(uid: t.login_name, tuid: t.team_uid)
-          x.login
+          tuid = case t.login_name.first(2)
+          when "mu"
+            109
+          when "rm"
+            211
+          when "ka"
+            204
+          when "ju"
+            411
+          end
+          x = X11.new(uid: t.login_name, tuid: tuid)
+          x.login(force: true)
+          x.create_team
+          x.buy_player
           x.get_lineup
         rescue => e
           Rails.logger.error(e)
