@@ -136,7 +136,6 @@ class S11
     adata.gsub!("var _ghtTmp = ", "")
     adata.strip!
     adata[-1] = ""
-    binding.pry
     jdata = JSON.parse(adata)
     selected = leagued = []
     ActiveRecord::Base.transaction do

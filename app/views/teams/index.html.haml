@@ -22,7 +22,7 @@
       - @teams.each do |team|
         %tr
           %td= team.login_name
-          %td= team.uid
+          %td= link_to team.uid, "http://play.s11.sgame.vn/club/#{team.uid}#playerinfo", target: :_blank, class: "label label-info"
           %td= team.team_uid
           %td= team.league_uid
           %td

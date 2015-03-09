@@ -12,17 +12,17 @@ class Team < ActiveRecord::Base
   end
 
   class << self
-    def regist_new(prefix, xteam)
-      do_create_team(prefix, xteam)
-      # ("aa".."zz").each do |char|
-      #   begin
-      #     x = prefix.dup.insert(-3, char)
-      #     S11.new(x).dang_ky_team()
-      #   rescue => e
-      #     Rails.logger.error(e)
-      #     next
-      #   end
-      # end
+    def regist_new(prefix)
+      # do_create_team(prefix, xteam)
+      ("aa".."zz").each do |char|
+        begin
+          x = prefix.dup.insert(-3, char)
+          S11.new(x).dang_ky_team()
+        rescue => e
+          Rails.logger.error(e)
+          next
+        end
+      end
     end
 
     private
