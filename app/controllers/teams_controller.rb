@@ -4,7 +4,7 @@ class TeamsController < ApplicationController
   # GET /teams
   # GET /teams.json
   def index
-    @teams = Team.all.page(params[:page]).per(10)
+    @teams = Team.valuable.page(params[:page]).per(10)
   end
 
   # GET /teams/1

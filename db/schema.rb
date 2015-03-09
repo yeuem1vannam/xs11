@@ -11,32 +11,47 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150309032824) do
+ActiveRecord::Schema.define(version: 20150309064410) do
+
+  create_table "delayed_jobs", force: :cascade do |t|
+    t.integer  "priority",   default: 0, null: false
+    t.integer  "attempts",   default: 0, null: false
+    t.text     "handler",                null: false
+    t.text     "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string   "locked_by"
+    t.string   "queue"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority"
 
   create_table "players", force: :cascade do |t|
-    t.integer  "team_id",    limit: 4
-    t.string   "name",       limit: 255
-    t.integer  "uid",        limit: 4
-    t.integer  "team_uid",   limit: 4
-    t.integer  "league_uid", limit: 4
-    t.integer  "grade",      limit: 4
-    t.text     "info",       limit: 65535
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.integer  "team_id"
+    t.string   "name"
+    t.integer  "uid"
+    t.integer  "team_uid"
+    t.integer  "league_uid"
+    t.integer  "grade"
+    t.text     "info"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
-  add_index "players", ["team_id"], name: "index_players_on_team_id", using: :btree
+  add_index "players", ["team_id"], name: "index_players_on_team_id"
 
   create_table "teams", force: :cascade do |t|
-    t.string   "login_name",   limit: 255
-    t.integer  "uid",          limit: 4
-    t.integer  "team_uid",     limit: 4
-    t.integer  "league_uid",   limit: 4
-    t.integer  "member_count", limit: 4
-    t.integer  "league_count", limit: 4
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.string   "login_name"
+    t.integer  "uid"
+    t.integer  "team_uid"
+    t.integer  "league_uid"
+    t.integer  "member_count"
+    t.integer  "league_count"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
-  add_foreign_key "players", "teams"
 end

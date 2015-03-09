@@ -136,14 +136,9 @@ class S11
     adata.gsub!("var _ghtTmp = ", "")
     adata.strip!
     adata[-1] = ""
+    binding.pry
     jdata = JSON.parse(adata)
     selected = leagued = []
-    # selected = jdata["players"].select do |j|
-    #   j["playerInventory"]["playerProfile"]["mteamNo"] == TARGET
-    # end.map{ |s| s["playerInventory"]["playerProfile"]["plrName"] }
-    # leagued = jdata["players"].select do |j|
-    #   j["playerInventory"]["playerProfile"]["mleagNo"] == LEAGUE
-    # end.map{ |s| s["playerInventory"]["playerProfile"]["plrName"] }
     ActiveRecord::Base.transaction do
       jdata["players"].each do |j|
         if j["playerInventory"]["playerProfile"]["mteamNo"] == TARGET
@@ -254,6 +249,9 @@ class S11
         end
       end
     end
+  end
+
+  def s11_login(login_name)
   end
 end
 # a, b, c = ARGV[0], ARGV[1], ARGV[2]

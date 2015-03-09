@@ -1,17 +1,38 @@
 class Team < ActiveRecord::Base
-  default_scope {where("member_count >= 4")}
   has_many :players, dependent: :destroy
+  scope :valuable, -> { where("member_count >= 4") }
+  scope :team_players, -> {  }
+
+  def team_players
+    players.where(team_uid: team_uid)
+  end
+
+  def league_players
+    players.where(league_uid: league_uid)
+  end
+
   class << self
-    def regist_new(prefix = nil)
-      ("aa".."zz").each do |char|
-        begin
-          x = prefix.dup.insert(-3, char)
-          S11.new(x).dang_ky_team()
-        rescue => e
-          Rails.logger.error(e)
-          next
-        end
-      end
+    def regist_new(prefix, xteam)
+      do_create_team(prefix, xteam)
+      # ("aa".."zz").each do |char|
+      #   begin
+      #     x = prefix.dup.insert(-3, char)
+      #     S11.new(x).dang_ky_team()
+      #   rescue => e
+      #     Rails.logger.error(e)
+      #     next
+      #   end
+      # end
+    end
+
+    private
+    def do_create_team(xlogin, xteam)
+      x = X11.new(uid: xlogin, tuid: xteam)
+      x.register
+      x.login
+      x.create_team
+      x.buy_player
+      x.get_lineup
     end
   end
 end

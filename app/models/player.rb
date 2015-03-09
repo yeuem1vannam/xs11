@@ -1,5 +1,5 @@
 class Player < ActiveRecord::Base
-  default_scope {order("field(grade, 3,2,7,1)")}
+  default_scope {order("CASE grade\n WHEN 3 THEN 0\n WHEN 2 THEN 1\n WHEN 7 THEN 2\n WHEN 1 THEN 3\n END")}
   belongs_to :team
   serialize :info, Hash
 
