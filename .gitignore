@@ -79,3 +79,4 @@ pickle-email-*.html
 .env
 .powenv
 *.log
+choose.csv

@@ -8,10 +8,10 @@ class X11
       keep_alive: true,
       redirect_ok: true,
     }
-    @memo = Logger.new("memo.log")
-    @choose = Logger.new("choose.log")
+    @memo = Logger.new("log/memo.log")
+    @choose = Logger.new("log/choose.log")
     @agent = Mechanize.new do |a|
-      a.log = Logger.new("s11.log")
+      a.log = Logger.new("log/s11.log")
       a.user_agent_alias = "Linux Firefox"
       a.open_timeout = options[:open_timeout]
       a.read_timeout = options[:read_timeout]
@@ -51,7 +51,6 @@ class X11
     }
     request = @agent.post(url, params)
     dkn_body = JSON.parse request.body
-    binding.pry
     if dkn_body["err"].zero?
       return self.login
     end
@@ -103,10 +102,8 @@ class X11
       json: '{"teamName":"%s","teamInitials":"%s","coachName":"%s","motherTeam":%s,"players":%s,"natNo":0,"squadName":"XXX"}' % [teamname, teamint, teamname, target[:team_uid], target[:main].inspect],
       path: "PC"
     }
-    binding.pry
     z = @agent.post("http://play.s11.sgame.vn/foundation/create2", params)
     z = JSON.parse(z.body)
-    binding.pry
     if z["code"]
       puts z["msg"]
       return z["code"] == "SUCCESS"
@@ -170,6 +167,10 @@ class X11
         player.update!(info: j["playerInventory"])
       end
     end
+    if !target[:league_uid] && !target[:team_uid]
+      target[:league_uid] = jdata["players"][0]["playerInventory"]["playerProfile"]["mleagNo"]
+      target[:team_uid] = jdata["players"][0]["playerInventory"]["playerProfile"]["mteamNo"]
+    end
     @team.update!(
       uid: jdata["squad"]["teamNo"],
       league_uid: target[:league_uid],
@@ -185,7 +186,7 @@ class X11
     else
       result = {team_uid: team_uid}
       case team_uid
-      when 811
+      when 819
         result[:main] = [819140171,819140121,819140181]
         result[:league_uid] = 8
         result[:pre] = false

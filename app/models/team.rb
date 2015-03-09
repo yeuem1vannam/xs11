@@ -12,12 +12,30 @@ class Team < ActiveRecord::Base
   end
 
   class << self
-    def regist_new(prefix)
+    def regist_new
+      prefixs = {musf: 109, rmafw: 211, katafw: 204, juvfw: 411}
       # do_create_team(prefix, xteam)
-      ("aa".."zz").each do |char|
+      ("ca".."zz").each do |char|
+        puts char
+        prefixs.keys.sample(3).each do |key|
+          begin
+            x = key.to_s.insert(-3, char)
+            puts x
+            do_create_team(x, prefixs[key])
+          rescue => e
+            Rails.logger.error(e)
+            next
+          end
+        end
+      end
+    end
+    
+    def update_team_lineup
+      Team.where(member_count: nil, league_count: nil).find_each do |t|
         begin
-          x = prefix.dup.insert(-3, char)
-          S11.new(x).dang_ky_team()
+          x = X11.new(uid: t.login_name, tuid: t.team_uid)
+          x.login
+          x.get_lineup
         rescue => e
           Rails.logger.error(e)
           next

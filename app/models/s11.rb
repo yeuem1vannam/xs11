@@ -2,7 +2,7 @@ require 'agent'
 
 class S11
   attr_accessor :agent, :memo, :username, :dkn_flag, :err, :team
-  x = 4
+  x = 6
   pre = true
   result = {target: nil, main: nil, league: nil}
   case x
