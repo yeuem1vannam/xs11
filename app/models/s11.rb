@@ -1,7 +1,7 @@
 require 'agent'
 
 class S11
-  attr_accessor :agent, :memo, :username, :dkn_flag, :err
+  attr_accessor :agent, :memo, :username, :dkn_flag, :err, :team
   x = 4
   pre = true
   result = {target: nil, main: nil, league: nil}
@@ -226,7 +226,7 @@ class S11
   def login
     login = {
       username: @username,
-      password: "valentin0",
+      password: 1,
       url: "http://s11.sgame.vn/play"
     }
     login_page = @agent.post("http://s11.sgame.vn/ajax/login", login)
