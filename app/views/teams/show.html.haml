@@ -1,12 +1,66 @@
-%p#notice= notice
+.page-header
+  = link_to teams_path, :class => 'btn btn-default' do
+    %span.glyphicon.glyphicon-list-alt
+    Back
+  = link_to edit_team_path(@team), :class => 'btn btn-primary' do
+    %span.glyphicon.glyphicon-pencil
+    Edit
+  %h1 Show team
 
-%p
-  %b Login:
-  = @team.login
-%p
-  %b Uid:
-  = @team.uid
-
-= link_to 'Edit', edit_team_path(@team)
-\|
-= link_to 'Back', teams_path
+%dl.dl-horizontal
+  %dt Login name:
+  %dd= @team.login_name
+  %dt Uid:
+  %dd= @team.uid
+  %dt Team uid:
+  %dd= @team.team_uid
+  %dt League uid:
+  %dd= @team.league_uid
+  %dt Member count:
+  %dd
+    = @team.member_count
+    %table
+      %tr
+        %th Name
+        %th Image
+        %th Name
+        %th Image
+        %th Name
+        %th Image
+      - @team.players.where(team_uid: @team.team_uid).each_slice(3) do |pp|
+        %tr
+          - pp.each do |p|
+            %td= p.name_grade
+            %td= s11_image_73(p.s11_image_url)
+  %dt League count:
+  %dd
+    = @team.league_count
+    %table
+      %tr
+        %th Name
+        %th Image
+        %th Name
+        %th Image
+        %th Name
+        %th Image
+      - @team.players.where(league_uid: @team.league_uid).each_slice(3) do |pp|
+        %tr
+          - pp.each do |p|
+            %td= p.name_grade
+            %td= s11_image_73(p.s11_image_url)
+  %dt Player count:
+  %dd
+    = @team.players.count
+    %table
+      %tr
+        %th Name
+        %th Image
+        %th Name
+        %th Image
+        %th Name
+        %th Image
+      - @team.players.each_slice(3) do |pp|
+        %tr
+          - pp.each do |p|
+            %td= p.name_grade
+            %td= s11_image_73(p.s11_image_url)

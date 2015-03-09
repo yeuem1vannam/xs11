@@ -1,23 +1,40 @@
-%h1 Listing teams
+.page-header
+  = link_to new_team_path, :class => 'btn btn-primary' do
+    %span.glyphicon.glyphicon-plus
+    New Team
+  %h1 Listing teams
 
-%table
-  %thead
-    %tr
-      %th Login
-      %th Uid
-      %th
-      %th
-      %th
-      
-  %tbody
-    - @teams.each do |team|
+.table-responsive
+  %table.table.table-striped.table-bordered.table-hover
+    %thead
       %tr
-        %td= team.login
-        %td= team.uid
-        %td= link_to 'Show', team
-        %td= link_to 'Edit', edit_team_path(team)
-        %td= link_to 'Destroy', team, :method => :delete, :data => { :confirm => 'Are you sure?' }
+        %th Login name
+        %th Uid
+        %th Team uid
+        %th League uid
+        %th Member count
+        %th League count
+        %th
+        %th
+        %th
 
-%br
-
-= link_to 'New Team', new_team_path
+    %tbody
+      - @teams.each do |team|
+        %tr
+          %td= team.login_name
+          %td= team.uid
+          %td= team.team_uid
+          %td= team.league_uid
+          %td
+            = team.member_count
+            %br
+            - team.players.where(team_uid: team.team_uid).each do |p|
+              = p.name_grade
+          %td
+            = team.league_count
+            %br
+            - team.players.where(league_uid: team.league_uid, grade: [2,3]).each do |p|
+              = p.name_grade
+          %td= link_to 'Show', team
+          %td= link_to 'Edit', edit_team_path(team)
+          %td= link_to 'Destroy', team, :data => { confirm: 'Are you sure?' }, :method => :delete

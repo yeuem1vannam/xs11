@@ -11,13 +11,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150308083643) do
+ActiveRecord::Schema.define(version: 20150309032824) do
 
   create_table "players", force: :cascade do |t|
+    t.integer  "team_id",    limit: 4
     t.string   "name",       limit: 255
     t.integer  "uid",        limit: 4
+    t.integer  "team_uid",   limit: 4
+    t.integer  "league_uid", limit: 4
+    t.integer  "grade",      limit: 4
     t.text     "info",       limit: 65535
-    t.integer  "team_id",    limit: 4
     t.datetime "created_at",               null: false
     t.datetime "updated_at",               null: false
   end
@@ -25,10 +28,14 @@ ActiveRecord::Schema.define(version: 20150308083643) do
   add_index "players", ["team_id"], name: "index_players_on_team_id", using: :btree
 
   create_table "teams", force: :cascade do |t|
-    t.string   "login",      limit: 255
-    t.integer  "uid",        limit: 4
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.string   "login_name",   limit: 255
+    t.integer  "uid",          limit: 4
+    t.integer  "team_uid",     limit: 4
+    t.integer  "league_uid",   limit: 4
+    t.integer  "member_count", limit: 4
+    t.integer  "league_count", limit: 4
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
   end
 
   add_foreign_key "players", "teams"

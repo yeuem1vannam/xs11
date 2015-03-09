@@ -1,5 +1,7 @@
-%h1 New player
+.page-header
+  = link_to players_path, :class => 'btn btn-default' do
+    %span.glyphicon.glyphicon-list-alt
+    Back
+  %h1 New player
 
 = render 'form'
-
-= link_to 'Back', players_path

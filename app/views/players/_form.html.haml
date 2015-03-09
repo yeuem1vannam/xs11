@@ -1,11 +1,39 @@
-= simple_form_for(@player) do |f|
-  = f.error_notification
+= form_for @player, :html => { :class => "form-horizontal", :role => "form" } do |f|
+  -if @player.errors.any?
+    .alert.alert-danger.alert-dismissable{:role => "alert"}
+      %button.close{:type => "button", :data => {:dismiss => "alert"} }
+        span{:aria => {:hidden => "true"} } &times;
+        span.sr-only Close
+      %h4= "#{pluralize(@player.errors.count, "error")} prohibited this player from being saved:"
 
-  .form-inputs
-    = f.input :name
-    = f.input :uid
-    = f.input :info
-    = f.association :team
+      %ul
+        - @player.errors.full_messages.each do |msg|
+          %li= msg
 
-  .form-actions
-    = f.button :submit
+  .form-group
+    = f.label :team, :class => 'col-sm-2 control-label'
+    .col-sm-10
+      = f.text_field :team, :class => 'form-control'
+  .form-group
+    = f.label :name, :class => 'col-sm-2 control-label'
+    .col-sm-10
+      = f.text_field :name, :class => 'form-control'
+  .form-group
+    = f.label :uid, :class => 'col-sm-2 control-label'
+    .col-sm-10
+      = f.number_field :uid, :class => 'form-control'
+  .form-group
+    = f.label :team_uid, :class => 'col-sm-2 control-label'
+    .col-sm-10
+      = f.number_field :team_uid, :class => 'form-control'
+  .form-group
+    = f.label :league_uid, :class => 'col-sm-2 control-label'
+    .col-sm-10
+      = f.number_field :league_uid, :class => 'form-control'
+  .form-group
+    = f.label :grade, :class => 'col-sm-2 control-label'
+    .col-sm-10
+      = f.number_field :grade, :class => 'form-control'
+  .form-group
+    .col-sm-offset-2.col-sm-10
+      = f.submit :class => 'btn btn-primary'

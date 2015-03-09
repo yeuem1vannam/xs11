@@ -1,27 +1,32 @@
-%h1 Listing players
+.page-header
+  = link_to new_player_path, :class => 'btn btn-primary' do
+    %span.glyphicon.glyphicon-plus
+    New Player
+  %h1 Listing players
 
-%table
-  %thead
-    %tr
-      %th Name
-      %th Uid
-      %th Info
-      %th Team
-      %th
-      %th
-      %th
-      
-  %tbody
-    - @players.each do |player|
+.table-responsive
+  %table.table.table-striped.table-bordered.table-hover
+    %thead
       %tr
-        %td= player.name
-        %td= player.uid
-        %td= player.info
-        %td= player.team
-        %td= link_to 'Show', player
-        %td= link_to 'Edit', edit_player_path(player)
-        %td= link_to 'Destroy', player, :method => :delete, :data => { :confirm => 'Are you sure?' }
+        %th Team
+        %th Name
+        %th Uid
+        %th Team uid
+        %th League uid
+        %th Grade
+        %th
+        %th
+        %th
 
-%br
-
-= link_to 'New Player', new_player_path
+    %tbody
+      - @players.each do |player|
+        %tr
+          %td= player.team
+          %td= player.name
+          %td= player.uid
+          %td= player.team_uid
+          %td= player.league_uid
+          %td= player.grade
+          %td= link_to 'Show', player
+          %td= link_to 'Edit', edit_player_path(player)
+          %td= link_to 'Destroy', player, :data => { confirm: 'Are you sure?' }, :method => :delete
