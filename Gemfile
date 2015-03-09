@@ -13,6 +13,7 @@ gem 'mysql2'
 gem 'simple_form'
 gem "mechanize"
 gem "parallel"
+gem "kaminari"
 group :development do
   gem 'better_errors'
   gem 'html2haml'
