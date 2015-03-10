@@ -10,19 +10,17 @@
       %tr
         %th Login name
         %th Uid
-        %th Team uid
-        %th League uid
+        %th TUID
+        %th LUID
         %th Member count
         %th League count
-        %th
-        %th
-        %th
+        %th Other
 
     %tbody
       - @teams.each do |team|
         %tr
-          %td= team.login_name
-          %td= team.uid
+          %td= link_to team.login_name, team, class: "label label-success"
+          %td= link_to team.uid, "http://play.s11.sgame.vn/club/#{team.uid}#playerinfo", target: :_blank, class: "label label-info"
           %td= team.team_uid
           %td= team.league_uid
           %td
@@ -35,6 +33,6 @@
             %br
             - team.players.where(league_uid: team.league_uid, grade: [2,3]).each do |p|
               = p.name_grade
-          %td= link_to 'Show', team
-          %td= link_to 'Edit', edit_team_path(team)
-          %td= link_to 'Destroy', team, :data => { confirm: 'Are you sure?' }, :method => :delete
+          %td
+            - team.players.where(league_uid: team.league_uid, grade: [2,3, 7]).where.not(team_uid: team.team_uid).each do |p|
+              = p.name_grade

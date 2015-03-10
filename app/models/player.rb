@@ -1,7 +1,7 @@
 class Player < ActiveRecord::Base
-  default_scope {order("field(grade, 3,2,7,1)")}
   belongs_to :team
   serialize :info, Hash
+  scope :grade_ordered, ->{order("field(grade, 3,2,7,1)")}
 
   def s11_image_url
     "http://images.s11.sgame.vn/pc/img_g/data/player_global/#{uid}_73.png"
