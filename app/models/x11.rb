@@ -125,7 +125,7 @@ class X11
     succ = []
     err = []
     thread_no = target[:pre] ? 20 : 200
-    Parallel.each((1..thread_no).to_a, in_threads: (target[:pre] ? 0 : thread_no)) do
+    Parallel.each((1..thread_no).to_a, in_threads: thread_no) do
       begin
         b = @agent.post("http://play.s11.sgame.vn/shop/buy", buy_params, {"Referer" => "http://play.s11.sgame.vn/gmc/main"})
         b = JSON.parse(b.body)
