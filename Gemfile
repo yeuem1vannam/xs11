@@ -10,6 +10,7 @@ gem 'bootstrap-sass'
 gem "bootstrap-generators"
 gem 'haml-rails'
 gem 'mysql2'
+gem "sqlite3"
 gem 'simple_form'
 gem "mechanize"
 gem "parallel"
