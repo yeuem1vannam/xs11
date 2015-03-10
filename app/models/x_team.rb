@@ -41,8 +41,12 @@ class XTeam < ActiveRecord::Base
       x.register
       x.login
       x.create_team
-      x.buy_player
-      x.get_lineup
+      y = X11.new(uid: xlogin, tuid: xteam)
+      y.login
+      y.buy_player
+      z = X11.new(uid: xlogin, tuid: xteam)
+      z.get_lineup
+      sleep 3
     end
   end
 end

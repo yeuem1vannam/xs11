@@ -29,7 +29,6 @@ class X11
       @team.update(team_uid: tuid || TUIDS.sample)
     end
     @team_uid = @team.team_uid
-    @agent.cookie_jar.load(agent_cookie) if logged_in?
   end
 
   def register
@@ -49,7 +48,7 @@ class X11
     dkn_body = JSON.parse request.body
     Rails.logger.info("REGISTER_MSG: #{dkn_body['msg']}")
     if dkn_body["err"].zero?
-      return self.login
+      return self.login(on_retry: true)
     end
   rescue => e
     Rails.logger.error("REGISTER: #{e}")
@@ -58,6 +57,7 @@ class X11
   def login(on_retry: false)
     if logged_in? && !on_retry
       puts "Logged in. Load from cookie"
+      @agent.cookie_jar.load(agent_cookie)
       return true
     else
       login = {
@@ -68,6 +68,7 @@ class X11
       if on_retry && logged_in?
         File.delete(agent_cookie)
       end
+      @agent.cookie_jar.clear!
       login_page = @agent.post("http://s11.sgame.vn/ajax/login", login)
       login_page = JSON.parse(login_page.body)
       Rails.logger.info("LOGIN_MSG: #{login_page['msg']}")
@@ -123,18 +124,18 @@ class X11
 
   def buy_player
     succ = []
-    err = []
     thread_no = target[:pre] ? 20 : 200
-    Parallel.each((1..thread_no).to_a, in_threads: thread_no) do
+    Parallel.map((1..thread_no).to_a, in_threads: thread_no) do
       begin
-        b = @agent.post("http://play.s11.sgame.vn/shop/buy", buy_params, {"Referer" => "http://play.s11.sgame.vn/gmc/main"})
+        x = @agent.dup
+        b = x.post("http://play.s11.sgame.vn/shop/buy", buy_params, {"Referer" => "http://play.s11.sgame.vn/gmc/main"})
         b = JSON.parse(b.body)
         profile = b["result"]["openItemMap"]["appliedList"].first["playerInventory"]["playerProfile"]
         if profile["mteamNo"] == target[:team_uid]
           succ.push(profile["plrName"])
         end
       rescue => e
-        err.push(e)
+        Rails.logger.error("BUY_PLAYER_THREAD: #{e}")
       end
     end
     Rails.logger.info("BUY_PLAYER_SUCC: #{succ.join('-')}")
@@ -143,10 +144,11 @@ class X11
   end
 
   def get_lineup
-    if self.login
-      parse_lineup()
-    else
-      raise "Login failed"
+    begin
+      self.login
+      parse_lineup
+    rescue => e
+      Rails.logger.error("GET_LINEUP: #{e}")
     end
   end
 
