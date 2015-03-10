@@ -9,10 +9,10 @@ class X11
       keep_alive: true,
       redirect_ok: true,
     }
-    @memo = Logger.new("memo.log")
-    @choose = Logger.new("choose.log")
+    @memo = Logger.new("log/memo.log")
+    @choose = Logger.new("log/choose.log")
     @agent = Mechanize.new do |a|
-      a.log = Logger.new("s11.log")
+      a.log = Logger.new("log/s11.log")
       a.user_agent_alias = "Linux Firefox"
       a.open_timeout = options[:open_timeout]
       a.read_timeout = options[:read_timeout]
@@ -93,7 +93,7 @@ class X11
     teamname = teamint = nil
     while !teamname
       teamname = (0...6).map { ([*0..9] + [*'A'..'Z'])[rand(36)] }.join
-      teamint = teamname.scan(/[A-Z]/).join
+      teamint = teamname.scan(/[A-Z]/).first(3).join
       if teamint.length < 3
         teamint << (0...(3 - teamint.length)).map { [*"A".."Z"][rand(26)] }.join
       end
