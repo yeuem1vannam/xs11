@@ -103,7 +103,7 @@ class X11
         teamname = nil
       end
     end
-    puts [username, teamname, teamint].inspect
+    puts [login_name, teamname, teamint].inspect
     params = {
       json: '{"teamName":"%s","teamInitials":"%s","coachName":"%s","motherTeam":%s,"players":%s,"natNo":0,"squadName":"XXX"}' % [teamname, teamint, teamname, target[:team_uid], target[:main].inspect],
       path: "PC"
