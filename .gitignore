@@ -79,3 +79,6 @@ pickle-email-*.html
 .powenv
 *.log
 /.c9
+/.c9/*
+.c9
+.c9/*

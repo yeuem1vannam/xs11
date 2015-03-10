@@ -47,6 +47,7 @@ class X11
     }
     request = @agent.post(url, params)
     dkn_body = JSON.parse request.body
+    Rails.logger.info("REGISTER_MSG: #{dkn_body['msg']}")
     if dkn_body["err"].zero?
       return self.login
     end
@@ -69,6 +70,7 @@ class X11
       end
       login_page = @agent.post("http://s11.sgame.vn/ajax/login", login)
       login_page = JSON.parse(login_page.body)
+      Rails.logger.info("LOGIN_MSG: #{login_page['msg']}")
       if login_page["err"] == 0
         puts login_page["msg"]
         @agent.get("http://s11.sgame.vn/play")
@@ -110,6 +112,7 @@ class X11
     }
     z = @agent.post("http://play.s11.sgame.vn/foundation/create2", params)
     z = JSON.parse(z.body)
+    Rails.logger.info("CREATE_TEAM_MSG: #{z['msg']}")
     if z["code"]
       puts z["msg"]
       return z["code"] == "SUCCESS"
@@ -134,6 +137,7 @@ class X11
         err.push(e)
       end
     end
+    Rails.logger.info("BUY_PLAYER_SUCC: #{succ.join('-')}")
   rescue => e
     Rails.logger.error("BUY_PLAYER: #{e}")
   end
