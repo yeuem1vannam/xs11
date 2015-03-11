@@ -57,7 +57,7 @@ class Player < ActiveRecord::Base
 
   class << self
     def re_arange_position
-      Player.where(position: nil).find_in_batches do |group|
+      Player.where(position: nil).where.not(info: nil).find_in_batches do |group|
         group.each do |p|
           p.calc_position
         end
