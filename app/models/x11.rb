@@ -9,10 +9,8 @@ class X11
       keep_alive: true,
       redirect_ok: true,
     }
-    @memo = Logger.new("log/memo.log")
-    @choose = Logger.new("log/choose.log")
     @agent = Mechanize.new do |a|
-      a.log = Logger.new("log/s11.log")
+      # a.log = Logger.new("log/s11.log")
       a.user_agent_alias = "Linux Firefox"
       a.open_timeout = options[:open_timeout]
       a.read_timeout = options[:read_timeout]
