@@ -30,7 +30,10 @@
       - @team.players.where(team_uid: @team.team_uid).each_slice(3) do |pp|
         %tr
           - pp.each do |p|
-            %td= p.name_grade
+            %td
+              = p.name_grade
+              %br
+              = p.possible_position
             %td= s11_image_73(p.s11_image_url)
   %dt League count:
   %dd
@@ -46,7 +49,10 @@
       - @team.players.where(league_uid: @team.league_uid).each_slice(3) do |pp|
         %tr
           - pp.each do |p|
-            %td= p.name_grade
+            %td
+              = p.name_grade
+              %br
+              = p.possible_position
             %td= s11_image_73(p.s11_image_url)
   %dt Player count:
   %dd
@@ -62,5 +68,8 @@
       - @team.players.each_slice(3) do |pp|
         %tr
           - pp.each do |p|
-            %td= p.name_grade
+            %td
+              = p.name_grade
+              %br
+              = p.possible_position
             %td= s11_image_73(p.s11_image_url)
