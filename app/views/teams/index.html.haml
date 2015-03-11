@@ -8,13 +8,18 @@
   %table.table.table-striped.table-bordered.table-hover
     %thead
       %tr
-        %th Login name
-        %th Uid
-        %th TUID
-        %th LUID
-        %th Member count
-        %th League count
-        %th Other
+        %th(rowspan=2) Login name
+        %th(rowspan=2) Uid
+        %th(rowspan=2) T
+        %th(rowspan=2) L
+        %th(colspan=2) Member count
+        %th(colspan=2) League count
+        %th(rowspan=2) Other
+      %tr
+        %th C
+        %th Member
+        %th C
+        %th League
 
     %tbody
       - @teams.each do |team|
@@ -23,14 +28,12 @@
           %td= link_to team.uid, "http://play.s11.sgame.vn/club/#{team.uid}#playerinfo", target: :_blank, class: "label label-info"
           %td= team.team_uid
           %td= team.league_uid
+          %td= team.member_count
           %td
-            = team.member_count
-            %br
             - team.players.where(team_uid: team.team_uid).each do |p|
               = p.name_grade
+          %td= team.league_count
           %td
-            = team.league_count
-            %br
             - team.players.where(league_uid: team.league_uid, grade: [2,3]).each do |p|
               = p.name_grade
           %td

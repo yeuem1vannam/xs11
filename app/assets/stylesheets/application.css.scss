@@ -13,3 +13,10 @@
  *= require_tree .
  *= require_self
  */
+body dl table {
+  text-align: center;
+  td {
+    border: 1px solid black;
+    min-width: 73px;
+  }
+}

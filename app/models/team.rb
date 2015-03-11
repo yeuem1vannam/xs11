@@ -10,6 +10,24 @@ class Team < ActiveRecord::Base
     players.where(league_uid: league_uid).grade_ordered
   end
 
+  def team_form
+    return @team_form if @team_form
+    team_players.where(position: nil).find_each(&:possible_position)
+    x = team_players.to_a
+    xform = {}
+    Player::POS.sort { |x, y| x[1] <=> y[1] }.each do |pos, val|
+      next if ["CAM", "LM", "RM"].include?(pos)
+      c = ["CB", "CM"].include?(pos) ? 2 : 1
+      xp = x.select { |p| val & p.position != 0}.sort { |a, b| a.position <=> b.position }.first(c)
+      if xp
+        xform[pos] = [*xp][0...c]
+        [*xp][0...c].each { |xxp| x.delete xxp }
+      end
+    end
+    @team_form = {in_form: xform, other: x}
+    @team_form
+  end
+
   class << self
     def regist_new(prefix)
       # do_create_team(prefix, xteam)

@@ -19,22 +19,60 @@
   %dt Member count:
   %dd
     = @team.member_count
-    %table
-      %tr
-        %th Name
-        %th Image
-        %th Name
-        %th Image
-        %th Name
-        %th Image
-      - @team.players.where(team_uid: @team.team_uid).each_slice(3) do |pp|
+    - if @team.team_uid == 819
+      %table
         %tr
-          - pp.each do |p|
-            %td
-              = p.name_grade
-              %br
-              = p.possible_position
-            %td= s11_image_73(p.s11_image_url)
+          %td= s11_image_73(@team.team_form[:in_form]["RW"][0])
+          %td(colspan=2)= s11_image_73(@team.team_form[:in_form]["ST"][0])
+          %td= s11_image_73(@team.team_form[:in_form]["LW"][0])
+        %tr
+          %td
+          %td= s11_image_73(nil)
+          %td= s11_image_73(nil)
+          %td
+        %tr
+          %td
+          %td= s11_image_73(@team.team_form[:in_form]["CM"][0])
+          %td= s11_image_73(@team.team_form[:in_form]["CM"][1])
+          %td
+        %tr
+          %td
+          %td(colspan=2)= s11_image_73(@team.team_form[:in_form]["CDM"][0])
+          %td
+        %tr
+          %td= s11_image_73(@team.team_form[:in_form]["RB"][0])
+          %td= s11_image_73(@team.team_form[:in_form]["CB"][0])
+          %td= s11_image_73(@team.team_form[:in_form]["CB"][1])
+          %td= s11_image_73(@team.team_form[:in_form]["LB"][0])
+        %tr
+          %td
+          %td(colspan=2)= s11_image_73(@team.team_form[:in_form]["GK"][0])
+          %td
+      %table
+        %tr
+          %th Name
+          %th Image
+          %th Name
+          %th Image
+          %th Name
+          %th Image
+        - @team.team_form[:other].each_slice(6) do |pp|
+          %tr
+            - pp.each do |p|
+              %td= s11_image_73(p)
+    - else
+      %table
+        %tr
+          %th Name
+          %th Image
+          %th Name
+          %th Image
+          %th Name
+          %th Image
+        - @team.players.where(team_uid: @team.team_uid).each_slice(6) do |pp|
+          %tr
+            - pp.each do |p|
+              %td= s11_image_73(p)
   %dt League count:
   %dd
     = @team.league_count
@@ -46,14 +84,10 @@
         %th Image
         %th Name
         %th Image
-      - @team.players.where(league_uid: @team.league_uid).each_slice(3) do |pp|
+      - @team.players.where(league_uid: @team.league_uid).each_slice(6) do |pp|
         %tr
           - pp.each do |p|
-            %td
-              = p.name_grade
-              %br
-              = p.possible_position
-            %td= s11_image_73(p.s11_image_url)
+            %td= s11_image_73(p)
   %dt Player count:
   %dd
     = @team.players.count
@@ -65,11 +99,7 @@
         %th Image
         %th Name
         %th Image
-      - @team.players.each_slice(3) do |pp|
+      - @team.players.each_slice(6) do |pp|
         %tr
           - pp.each do |p|
-            %td
-              = p.name_grade
-              %br
-              = p.possible_position
-            %td= s11_image_73(p.s11_image_url)
+            %td= s11_image_73(p)
