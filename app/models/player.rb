@@ -42,6 +42,10 @@ class Player < ActiveRecord::Base
 
   def possible_position
     POS.select { |p| POS[p] & position != 0 }.keys.join("|")
+  rescue
+    self.calc_position
+    self.save
+    self.possible_position
   end
 
   def calc_position
@@ -53,7 +57,7 @@ class Player < ActiveRecord::Base
 
   class << self
     def re_arange_position
-      Player.find_in_batches do |group|
+      Player.where(position: nil).find_in_batches do |group|
         group.each do |p|
           p.calc_position
         end

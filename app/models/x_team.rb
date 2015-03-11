@@ -7,11 +7,14 @@ class XTeam < ActiveRecord::Base
   def to_main_data
     team = Team.where(login_name: login_name).first_or_create
     team.update(self.attributes.except("id"))
-    ActiveRecord::Base.transaction do
-      players.find_each do |p|
-        player = team.players.where(uid: p.uid).first_or_create
-        player.update!(p.attributes.except("id").merge("team_id" => team.id))
+    self.players.find_in_batches do |group|
+      xplayers = []
+      group.each do |p|
+        player = team.players.where(uid: p.uid).first_or_initialize
+        player.assign_attributes(p.attributes.except("id").merge("team_id" => team.id))
+        xplayers.push(player)
       end
+      Player.import(xplayers, on_duplicate_key_update: Player.column_names - ["id"])
     end
   end
 
