@@ -82,3 +82,5 @@ pickle-email-*.html
 /.c9/*
 .c9
 .c9/*
+.ruby-*
+.versions.conf
