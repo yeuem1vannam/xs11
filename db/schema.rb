@@ -11,22 +11,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150311041058) do
+ActiveRecord::Schema.define(version: 20150312064732) do
 
-  create_table "players", force: :cascade do |t|
-    t.integer  "team_id",    limit: 4
-    t.string   "name",       limit: 255
-    t.integer  "uid",        limit: 4
-    t.integer  "team_uid",   limit: 4
-    t.integer  "league_uid", limit: 4
-    t.integer  "grade",      limit: 4
-    t.text     "info",       limit: 65535
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
-    t.integer  "position",   limit: 4
+  create_table "player_infos", force: :cascade do |t|
+    t.text    "info",    limit: 65535
+    t.integer "info_no", limit: 4
   end
 
+  create_table "players", force: :cascade do |t|
+    t.integer  "team_id",        limit: 4
+    t.string   "name",           limit: 255
+    t.integer  "uid",            limit: 4
+    t.integer  "team_uid",       limit: 4
+    t.integer  "league_uid",     limit: 4
+    t.integer  "grade",          limit: 4
+    t.text     "info",           limit: 65535
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.integer  "position",       limit: 4
+    t.integer  "player_info_id", limit: 4
+  end
+
+  add_index "players", ["player_info_id"], name: "index_players_on_player_info_id", using: :btree
   add_index "players", ["team_id"], name: "index_players_on_team_id", using: :btree
+  add_index "players", ["uid"], name: "index_players_on_uid", using: :btree
 
   create_table "teams", force: :cascade do |t|
     t.string   "login_name",   limit: 255
@@ -41,5 +49,6 @@ ActiveRecord::Schema.define(version: 20150311041058) do
 
   add_index "teams", ["login_name"], name: "index_teams_on_login_name", using: :btree
 
+  add_foreign_key "players", "player_infos"
   add_foreign_key "players", "teams"
 end
