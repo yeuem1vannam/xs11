@@ -10,7 +10,7 @@ gem "bootstrap-generators"
 gem 'haml-rails'
 gem 'mysql2'
 gem "sqlite3"
-# gem 'simple_form'
+gem 'simple_form'
 gem "mechanize"
 gem "parallel"
 gem "kaminari"
