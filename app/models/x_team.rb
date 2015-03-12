@@ -27,7 +27,7 @@ class XTeam < ActiveRecord::Base
 
   class << self
     def regist_new(prefix, xteam = nil)
-      ("aa".."zz").each do |char|
+      ("a".."b").each do |char|
         begin
           x = prefix.dup.insert(-3, char)
           do_create_team(x, xteam)

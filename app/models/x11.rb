@@ -45,14 +45,18 @@ class X11
     request = @agent.post(url, params)
     dkn_body = JSON.parse request.body
     Rails.logger.info("REGISTER_MSG: #{dkn_body['msg']}")
+    binding.pry
     if dkn_body["err"].zero?
+      @team.update(registered: true)
       return self.login(on_retry: true)
     end
   rescue => e
+    binding.pry
     Rails.logger.error("REGISTER: #{e}")
   end
 
   def login(on_retry: false)
+    raise "Account not registered" unless @team.registered
     if logged_in? && !on_retry
       puts "Logged in. Load from cookie"
       @agent.cookie_jar.load(agent_cookie)
@@ -81,6 +85,7 @@ class X11
       end
     end
   rescue => e
+    binding.pry
     Rails.logger.error("LOGIN: #{e}")
     puts "Retry login"
     unless on_retry
@@ -112,12 +117,20 @@ class X11
     z = @agent.post("http://play.s11.sgame.vn/foundation/create2", params)
     z = JSON.parse(z.body)
     Rails.logger.info("CREATE_TEAM_MSG: #{z['msg']}")
-    if z["code"]
+    binding.pry
+    if z["code"] == "SUCCESS"
       puts z["msg"]
-      return z["code"] == "SUCCESS"
+      @team.update(teamname: teamname, team_sign: teamint)
+      return true
     end
   rescue => e
+    binding.pry
     Rails.logger.error("CREATE_TEAM: #{e}")
+  end
+
+  def clear_attendance
+    # newslist http://play.s11.sgame.vn/home/newslist {pageNo: 0}
+    # res["teamNewsList"]
   end
 
   def buy_player
@@ -138,6 +151,7 @@ class X11
     end
     Rails.logger.info("BUY_PLAYER_SUCC: #{succ.join('-')}")
   rescue => e
+    binding.pry
     Rails.logger.error("BUY_PLAYER: #{e}")
   end
 
@@ -178,7 +192,14 @@ class X11
           name: j["playerInventory"]["playerProfile"]["plrName"],
           grade: j["playerInventory"]["grd"]
           ).first_or_create
-        player.update!(info: j["playerInventory"])
+
+        if Rails.configuration.database_configuration.any? { |c| c[1]["adapter"] == "mysql2" }
+          p_info = PlayerInfo.where(info_no: j["playerInventory"]["playerProfile"]["plrProfileInfoNo"]).first_or_create
+          p_info.update!(info: j["playerInventory"])
+          player.update!(player_info_id: p_info.id)
+        else
+          player.update!(info: j["playerInventory"])
+        end
       end
     end
     @team.update!(
