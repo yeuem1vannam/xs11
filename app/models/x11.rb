@@ -2,7 +2,7 @@ require "agent"
 class X11
   TUIDS = [819, 411, 107, 211, 204, 109]
   attr_accessor :agent, :login_name, :password, :team, :team_uid
-  def initialize(uid: nil, pwd: nil, tuid: nil)
+  def initialize(uid: nil, login_pwd: nil, tuid: nil)
     options = {
       open_timeout: 3,
       read_timeout: 4,
@@ -10,23 +10,22 @@ class X11
       redirect_ok: true,
     }
     @agent = Mechanize.new do |a|
-      # a.log = Logger.new("log/s11.log")
       a.user_agent_alias = "Linux Firefox"
       a.open_timeout = options[:open_timeout]
       a.read_timeout = options[:read_timeout]
       a.keep_alive = options[:keep_alive]
       a.redirect_ok = options[:redirect_ok]
     end
-    @login_name = uid
-    @password = pwd || 1
     unless uid
       raise "Missing arguments: Username: #{uid} / team_uid: #{tuid}"
     end
     @team = XTeam.where(login_name: uid).first_or_create
+    unless @team.login_pwd
+      @team.update(login_pwd: login_pwd || 1)
+    end
     unless @team.team_uid
       @team.update(team_uid: tuid || TUIDS.sample)
     end
-    @team_uid = @team.team_uid
   end
 
   def register
@@ -34,9 +33,9 @@ class X11
     sleep 1
     url = "http://s11.sgame.vn/ajax/dkn"
     params = {
-      txt_username: login_name,
-      txt_password: password,
-      re_txt_password: password,
+      txt_username: @team.login_name,
+      txt_password: @team.login_pwd,
+      re_txt_password: @team.login_pwd,
       a: nil,
       c: nil,
       partner_id: nil,
@@ -46,21 +45,26 @@ class X11
     dkn_body = JSON.parse request.body
     Rails.logger.info("REGISTER_MSG: #{dkn_body['msg']}")
     if dkn_body["err"].zero?
+      puts dkn_body["msg"]
+      @team.update(registered: true)
       return self.login(on_retry: true)
+    else
+      return false
     end
   rescue => e
     Rails.logger.error("REGISTER: #{e}")
   end
 
-  def login(on_retry: false)
+  def login(on_retry: false, force: false)
+    raise "Account not registered" if !@team.registered && !force
     if logged_in? && !on_retry
       puts "Logged in. Load from cookie"
       @agent.cookie_jar.load(agent_cookie)
       return true
     else
       login = {
-        username: login_name,
-        password: password,
+        username: @team.login_name,
+        password: @team.login_pwd,
         url: "http://s11.sgame.vn/play"
       }
       if on_retry && logged_in?
@@ -88,7 +92,7 @@ class X11
     end
   end
 
-  def create_team
+  def create_team(on_retry: false)
     @agent.get("http://play.s11.sgame.vn/foundation/create")
     sleep 1
     teamname = teamint = nil
@@ -104,7 +108,7 @@ class X11
         teamname = nil
       end
     end
-    puts [login_name, teamname, teamint].inspect
+    puts [@team.login_name, teamname, teamint].inspect
     params = {
       json: '{"teamName":"%s","teamInitials":"%s","coachName":"%s","motherTeam":%s,"players":%s,"natNo":0,"squadName":"XXX"}' % [teamname, teamint, teamname, target[:team_uid], target[:main].inspect],
       path: "PC"
@@ -112,18 +116,48 @@ class X11
     z = @agent.post("http://play.s11.sgame.vn/foundation/create2", params)
     z = JSON.parse(z.body)
     Rails.logger.info("CREATE_TEAM_MSG: #{z['msg']}")
-    if z["code"]
+    if z["code"] == "SUCCESS"
       puts z["msg"]
-      return z["code"] == "SUCCESS"
+      @team.update(teamname: teamname, team_sign: teamint)
+      return true
+    else
+      return false
     end
   rescue => e
+    puts "Create team error. Try again"
     Rails.logger.error("CREATE_TEAM: #{e}")
+    unless on_retry
+      self.login(on_retry: true)
+      self.create_team(on_retry: true)
+    end
+  end
+
+  def clear_attendance
+    # newslist http://play.s11.sgame.vn/home/newslist {pageNo: 0}
+    # res["teamNewsList"]
+  end
+
+  def get_gp(direct_update: true)
+    gp = @agent.post("http://play.s11.sgame.vn/ajax/getGp")
+    gp = JSON.parse(gp.body)
+    if gp["result"]
+      puts [@team.login_name, gp["result"]].inspect
+      @team.gp_amount = gp["result"]
+      @team.save if direct_update
+      @team.gp_amount
+    else
+      return 0
+    end
+  rescue => e
+    Rails.logger.error("GET_GP: #{e}")
+    return 1
   end
 
   def buy_player
+    return if self.get_gp.zero?
     succ = []
     thread_no = target[:pre] ? 20 : 200
-    Parallel.map((1..thread_no).to_a, in_threads: thread_no) do
+    Parallel.map((1..thread_no).to_a, in_threads: thread_no) do |t|
       begin
         x = @agent.dup
         b = x.post("http://play.s11.sgame.vn/shop/buy", buy_params, {"Referer" => "http://play.s11.sgame.vn/gmc/main"})
@@ -133,7 +167,7 @@ class X11
           succ.push(profile["plrName"])
         end
       rescue => e
-        Rails.logger.error("BUY_PLAYER_THREAD: #{e}")
+        Rails.logger.error("BUY_PLAYER_THREAD: #{t} : #{e}")
       end
     end
     Rails.logger.info("BUY_PLAYER_SUCC: #{succ.join('-')}")
@@ -143,7 +177,6 @@ class X11
 
   def get_lineup
     begin
-      self.login
       parse_lineup
     rescue => e
       Rails.logger.error("GET_LINEUP: #{e}")
@@ -160,6 +193,7 @@ class X11
   end
 
   def parse_lineup
+    self.login
     lineup = "http://play.s11.sgame.vn/gmc/squad/lineup?debug=N&_=#{Time.now}"
     data = @agent.get(lineup)
     cdata = data.search("script").last.text
@@ -178,7 +212,14 @@ class X11
           name: j["playerInventory"]["playerProfile"]["plrName"],
           grade: j["playerInventory"]["grd"]
           ).first_or_create
-        player.update!(info: j["playerInventory"])
+
+        if Rails.configuration.database_configuration.any? { |c| c[1]["adapter"] == "mysql2" }
+          p_info = PlayerInfo.where(info_no: j["playerInventory"]["playerProfile"]["plrProfileInfoNo"]).first_or_create
+          p_info.update!(info: j["playerInventory"])
+          player.update!(player_info_id: p_info.id)
+        else
+          player.update!(info: j["playerInventory"])
+        end
       end
     end
     @team.update!(
@@ -188,14 +229,15 @@ class X11
       league_count: @team.players.where(league_uid: target[:league_uid]).count,
       team_uid: target[:team_uid]
     )
+    self.get_gp
   end
 
   def target
     if @target
       @target
     else
-      result = {team_uid: team_uid}
-      case team_uid
+      result = {team_uid: @team.team_uid}
+      case @team.team_uid
       when 819
         result[:main] = [819140171,819140121,819140181]
         result[:league_uid] = 8
