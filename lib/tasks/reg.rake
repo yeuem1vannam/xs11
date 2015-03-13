@@ -34,13 +34,31 @@ namespace :reg do
     fail "No field provided" unless field
     case field.to_sym
     when :gp_amount
-      Team.registered.where(gp_amount: nil).find_each do |t|
-        x = X11.new(uid: t.login_name, login_pwd: t.login_pwd)
-        x.login
-        x.get_gp
-        puts [x.team.login_name, x.team.reload.gp_amount].inspect
+      Team.where(gp_amount: [nil, 0, 1]).find_in_batches do |group|
+        # xgroup = []
+        group.each do |t|
+          x = X11.new(uid: t.login_name, login_pwd: t.login_pwd)
+          x.login(on_retry: true, force: true)
+          x.get_gp
+          # t.gp_amount = x.get_gp(direct_update: true)
+          # xgroup.push(t)
+        end
+        # Team.import(xgroup, on_duplicate_key_update: [:gp_amount])
       end
     when :position
+    when :registered
+      Team.not_registered.find_in_batches do |group|
+        xgroup = []
+        group.each do |t|
+          x = X11.new(uid: t.login_name, login_pwd: t.login_pwd || 1)
+          if x.login(on_retry: true, force: true)
+            t.registered = true
+            puts [t.login_name, t.registered].inspect
+            xgroup.push(t)
+          end
+        end
+        Team.import(xgroup, on_duplicate_key_update: [:registered])
+      end
     when :uid
       Team.registered.where(uid: nil, member_count: nil, league_count: nil).find_each do |t|
         x = X11.new(uid: t.login_name, login_pwd: t.login_pwd)

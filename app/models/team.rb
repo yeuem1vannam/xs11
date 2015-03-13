@@ -1,6 +1,7 @@
 class Team < ActiveRecord::Base
   has_many :players, dependent: :destroy
   scope :registered, -> { where(registered: true) }
+  scope :not_registered, -> { where.not(registered: true) }
   scope :valuable, -> { registered.where("member_count >= 4") }
 
   def team_players

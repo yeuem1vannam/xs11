@@ -55,8 +55,8 @@ class X11
     Rails.logger.error("REGISTER: #{e}")
   end
 
-  def login(on_retry: false)
-    raise "Account not registered" unless @team.registered
+  def login(on_retry: false, force: false)
+    raise "Account not registered" if !@team.registered && !force
     if logged_in? && !on_retry
       puts "Logged in. Load from cookie"
       @agent.cookie_jar.load(agent_cookie)
@@ -137,11 +137,13 @@ class X11
     # res["teamNewsList"]
   end
 
-  def get_gp
+  def get_gp(direct_update: true)
     gp = @agent.post("http://play.s11.sgame.vn/ajax/getGp")
     gp = JSON.parse(gp.body)
     if gp["result"]
-      @team.update(gp_amount: gp["result"])
+      puts [@team.login_name, gp["result"]].inspect
+      @team.gp_amount = gp["result"]
+      @team.save if direct_update
       @team.gp_amount
     else
       return 0
