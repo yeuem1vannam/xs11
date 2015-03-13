@@ -1,6 +1,7 @@
 class Team < ActiveRecord::Base
   has_many :players, dependent: :destroy
-  scope :valuable, -> { where("member_count >= 4") }
+  scope :registered, -> { where(registered: true) }
+  scope :valuable, -> { registered.where("member_count >= 4") }
 
   def team_players
     players.where(team_uid: team_uid).grade_ordered

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150312103904) do
+ActiveRecord::Schema.define(version: 20150312224539) do
 
   create_table "player_infos", force: :cascade do |t|
     t.text    "info"
@@ -51,6 +51,7 @@ ActiveRecord::Schema.define(version: 20150312103904) do
     t.string   "team_sign"
     t.integer  "gp_amount"
     t.boolean  "registered",   default: false
+    t.string   "login_pwd"
   end
 
   add_index "teams", ["login_name"], name: "index_teams_on_login_name"

@@ -84,3 +84,4 @@ pickle-email-*.html
 .c9/*
 .ruby-*
 .versions.conf
+/db/schema.rb
