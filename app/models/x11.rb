@@ -56,7 +56,7 @@ class X11
   end
 
   def login(on_retry: false, force: false)
-    raise "Account not registered" if !@team.registered && !force
+    # raise "Account not registered" if !@team.registered && !force
     if logged_in? && !on_retry
       puts "Logged in. Load from cookie"
       @agent.cookie_jar.load(agent_cookie)
@@ -183,6 +183,33 @@ class X11
     end
   end
 
+  def fillin_giftcode
+    self.login(on_retry: true, force: true)
+    @agent.get("http://s11.sgame.vn/giftcode/fillin")
+    @agent.post("http://s11.sgame.vn/giftcode/fillin", {giftcode: "nqzaCBXIBL3AH4x"})
+  rescue => e
+    Rails.logger.error("GIFTCODE_FILLIN: #{@team.login_name} : #{e}")
+  end
+
+  def open_giftcode
+    self.login(on_retry: true, force: true)
+    p2 = @agent.get("http://play.s11.sgame.vn/inventory/gift?debug=N&_=#{Time.now.to_i}")
+    seqs = [*p2.search("script").text.scan(/giftSeq.*?(\d+)/)].flatten
+    self.login(on_retry: true, force: true)
+    seqs.each do |seq|
+      p3 = @agent.post("http://play.s11.sgame.vn/inventory/confirmgift", {giftSeq: seq}, {"Host" => "play.s11.sgame.vn", "Origin" => "http://play.s11.sgame.vn", "Referer" => "http://play.s11.sgame.vn/gmc/main"})
+    end
+    20.times do |i|
+      begin
+        self.login(on_retry: true, force: true)
+        @agent.post("http://play.s11.sgame.vn/inventory/openitem", {objectId: "irplr_premium_lv1", strgCate: "RPLR"})
+      rescue => e
+        next
+      end
+    end
+  rescue =>e
+    Rails.logger.error("OPEN_GIFTCODE: #{@team.login_name} : #{e}")
+  end
   private
   def agent_cookie
     "tmp/#{login_name}.cookie"
